@@ -13,6 +13,7 @@
 #include "abimport.h"
 #include "proto.h"
 
+#include "world.h"
 
 int
 speedMoreClicked( PtWidget_t *widget, ApInfo_t *apinfo, PtCallbackInfo_t *cbinfo )
@@ -21,7 +22,12 @@ speedMoreClicked( PtWidget_t *widget, ApInfo_t *apinfo, PtCallbackInfo_t *cbinfo
 
 	/* eliminate 'unreferenced' warnings */
 	widget = widget, apinfo = apinfo, cbinfo = cbinfo;
-
+	
+	if (timer > 10000)
+		timer -= 50000;
+	else
+		timer = 10000;
+	printf("Timer set to: %d\n", timer);
 	return( Pt_CONTINUE );
 
 	}

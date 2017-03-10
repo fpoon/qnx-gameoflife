@@ -13,21 +13,27 @@
 #include "abimport.h"
 #include "proto.h"
 
-#include "world.h"
+int fillPercent = 10;
 
 int
-speedLessClicked( PtWidget_t *widget, ApInfo_t *apinfo, PtCallbackInfo_t *cbinfo )
+fillSliderMoved( PtWidget_t *widget, ApInfo_t *apinfo, PtCallbackInfo_t *cbinfo )
 
 	{
-
+	int * val;
+	int i;
+	char buf[8];
 	/* eliminate 'unreferenced' warnings */
 	widget = widget, apinfo = apinfo, cbinfo = cbinfo;
 	
-	if (timer < 1010000)
-		timer += 50000;
-	else
-		timer = 1010000;
-	printf("Timer set to: %d\n", timer);
+	for (i = 0; i < 8; i++)
+		buf[i] = 0;
+	
+	PtGetResource(ABW_psFillSlider, Pt_ARG_GAUGE_VALUE, &val, 0);
+	sprintf(buf, "%d%%", *val);
+	fillPercent = *val;
+	
+	PtSetResource(ABW_plFillLabel, Pt_ARG_TEXT_STRING, buf, 0);
+
 	return( Pt_CONTINUE );
 
 	}

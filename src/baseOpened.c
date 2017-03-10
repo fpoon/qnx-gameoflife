@@ -7,27 +7,23 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <time.h>
 
 /* Local headers */
 #include "ablibs.h"
 #include "abimport.h"
 #include "proto.h"
 
-#include "world.h"
 
 int
-speedLessClicked( PtWidget_t *widget, ApInfo_t *apinfo, PtCallbackInfo_t *cbinfo )
+baseOpened( PtWidget_t *widget, ApInfo_t *apinfo, PtCallbackInfo_t *cbinfo )
 
 	{
-
 	/* eliminate 'unreferenced' warnings */
 	widget = widget, apinfo = apinfo, cbinfo = cbinfo;
-	
-	if (timer < 1010000)
-		timer += 50000;
-	else
-		timer = 1010000;
-	printf("Timer set to: %d\n", timer);
+
+	srand(time(NULL));
+
 	return( Pt_CONTINUE );
 
 	}

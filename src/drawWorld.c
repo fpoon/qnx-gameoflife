@@ -25,6 +25,7 @@ void drawGrid(PhRect_t * canvas)
 	int cell;
 	int x,y,w,h;
 	int startx, starty, cellx, celly, size;
+	int color;
 	size = getCellSize();
 	w = canvas->lr.x-canvas->ul.x;
 	h = canvas->lr.y-canvas->ul.y;
@@ -46,13 +47,14 @@ void drawGrid(PhRect_t * canvas)
 		for (i = (getWorldX()/size)-1; x <= canvas->lr.x; x+=size)
 		{
 			cell = getCell(i, j);
-			PgSetFillColor(getCellColor(cell));
+			color = getCellColor(cell);
+			PgSetFillColor(color);
 			if (cell != -1)
 			{
 				if (size > 4)
 					PgDrawIRect(x,y,x+size,y+size, Pg_DRAW_FILL_STROKE);
-				else
-					PgDrawIRect(x,y,x+size,y+size, Pg_DRAW_FILL);
+				else if (color != 0)
+					PgDrawIRect(x,y,x+size-1,y+size-1, Pg_DRAW_FILL);
 			}
 			i++;
 		}

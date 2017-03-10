@@ -13,21 +13,24 @@
 #include "abimport.h"
 #include "proto.h"
 
-#include "world.h"
+char const *turbobtns[] = {"Understood"};
 
 int
-speedLessClicked( PtWidget_t *widget, ApInfo_t *apinfo, PtCallbackInfo_t *cbinfo )
+turboClicked( PtWidget_t *widget, ApInfo_t *apinfo, PtCallbackInfo_t *cbinfo )
 
 	{
-
+	unsigned long * flags;
 	/* eliminate 'unreferenced' warnings */
 	widget = widget, apinfo = apinfo, cbinfo = cbinfo;
 	
-	if (timer < 1010000)
-		timer += 50000;
-	else
-		timer = 1010000;
-	printf("Timer set to: %d\n", timer);
+	PtGetResource(ABW_pbTurbo, Pt_ARG_FLAGS, &flags, 0);
+		
+	if (!(*flags & Pt_SET))
+		return Pt_CONTINUE;
+	
+	PtAlert(ABW_base, NULL, "Warning!", NULL, "Rule B0 doesn't work in Turbo mode",
+				NULL, 1, turbobtns, NULL, 1, 3, Pt_BLOCK_ALL);
+	
 	return( Pt_CONTINUE );
 
 	}

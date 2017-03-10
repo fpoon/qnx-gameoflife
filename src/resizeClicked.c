@@ -15,20 +15,25 @@
 
 #include "world.h"
 
+char const *resbtns[] = {"OK"};
+
 int
-speedLessClicked( PtWidget_t *widget, ApInfo_t *apinfo, PtCallbackInfo_t *cbinfo )
+resizeClicked( PtWidget_t *widget, ApInfo_t *apinfo, PtCallbackInfo_t *cbinfo )
 
 	{
-
+		
+	int x,y;
+	char * str;
 	/* eliminate 'unreferenced' warnings */
 	widget = widget, apinfo = apinfo, cbinfo = cbinfo;
 	
-	if (timer < 1010000)
-		timer += 50000;
-	else
-		timer = 1010000;
-	printf("Timer set to: %d\n", timer);
-	return( Pt_CONTINUE );
+	if (isSimulation()) {
+		PtAlert(ABW_base, NULL, "Warning!", NULL, "Please, reboot simualtion first!",
+				NULL, 1, resbtns, NULL, 1, 3, Pt_BLOCK_ALL);
+			return( Pt_CONTINUE );
+	}
+	
+	return newClicked(widget, apinfo, cbinfo);
 
 	}
 

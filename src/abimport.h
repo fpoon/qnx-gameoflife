@@ -3,7 +3,7 @@
 #include "abdefine.h"
 
 extern ApWindowLink_t base;
-extern ApWidget_t AbWidgets[ 22 ];
+extern ApWidget_t AbWidgets[ 28 ];
 
 
 #ifdef __cplusplus
@@ -28,6 +28,14 @@ int speedLessClicked( PtWidget_t *widget, ApInfo_t *data, PtCallbackInfo_t *cbin
 int speedMoreClicked( PtWidget_t *widget, ApInfo_t *data, PtCallbackInfo_t *cbinfo );
 int mouseDown( PtWidget_t *widget, ApInfo_t *data, PtCallbackInfo_t *cbinfo );
 int mouseFirstDown( PtWidget_t *widget, ApInfo_t *data, PtCallbackInfo_t *cbinfo );
+int cyclicClicked( PtWidget_t *widget, ApInfo_t *data, PtCallbackInfo_t *cbinfo );
+int fillSliderMoved( PtWidget_t *widget, ApInfo_t *data, PtCallbackInfo_t *cbinfo );
+int resizeClicked( PtWidget_t *widget, ApInfo_t *data, PtCallbackInfo_t *cbinfo );
+int fillClicked( PtWidget_t *widget, ApInfo_t *data, PtCallbackInfo_t *cbinfo );
+int baseOpened( PtWidget_t *widget, ApInfo_t *data, PtCallbackInfo_t *cbinfo );
+int baseClosed( PtWidget_t *widget, ApInfo_t *data, PtCallbackInfo_t *cbinfo );
+int colorsSelected( PtWidget_t *widget, ApInfo_t *data, PtCallbackInfo_t *cbinfo );
+int turboClicked( PtWidget_t *widget, ApInfo_t *data, PtCallbackInfo_t *cbinfo );
 #ifdef __cplusplus
 }
 #endif

@@ -1,12 +1,16 @@
 #include <algorithm>
 #include <iostream>
 
+#include <time.h>
+
 #include "sim.h"
 
 using namespace std;
 
 Simulation::Simulation(uint32_t * feed, uint16_t w, uint16_t h, bool cyclic, bool linear, uint8_t b, uint8_t s) : w(w), h(h), cyclic(cyclic), linear(linear)
 {
+	timePerStep = 0;
+	stepCount = 0;
 	data = new uint32_t[w*h];
 	tmp_data = new uint32_t[w*h];
 
@@ -33,6 +37,22 @@ Simulation::Simulation(uint32_t * feed, uint16_t w, uint16_t h, bool cyclic, boo
 		b >>= 1;
 		s >>= 1;
 	}
+	
+	float startline = 0;
+	float s = (float)h/(float)SIM_THREADS;
+	float endline = s;
+	
+	for (int i = 0; i < SIM_THREADS; i++) {
+		args[i].sim = this;
+		args[i].startline = (int)startline;
+		args[i].endline = (int)endline;
+		startline = endline;
+		endline += s;
+	}
+	args[SIM_THREADS-1].endline = h;
+	/*for (int i = 0; i < SIM_THREADS; i++) {
+		printf("Startline %d, endline %d\n", args[i].startline, args[i].endline);
+	}*/
 }
 
 Simulation::~Simulation()
@@ -41,14 +61,43 @@ Simulation::~Simulation()
 	delete tmp_data;
 }
 
-void Simulation::step()
+int Simulation::stepLines(int startline, int endline)
 {
-	for (int y = 0; y < h; y++)
+	int ret = 0;
+	for (int y = startline; y < endline; y++)
 	{
 		for(int x = 0; x < w; x++)
-			setCell(x,y);
+			ret += setCell(x,y);
+	}
+	return ret;
+}
+
+int Simulation::step()
+{
+	unsigned long ts;
+	struct timespec tp;
+	clock_gettime(CLOCK_REALTIME, &tp);
+	ts = tp.tv_nsec;
+	int ret = 0;
+	if (linear)
+	{
+		ret = stepLines(0, h);
+	} else {
+		for (int i = 0; i < SIM_THREADS; i++) {
+			pthread_create(&threads[i], NULL, simStepLineThreadFunc, &args[i]);
+		}
+		for (int i = 0; i < SIM_THREADS; i++) {
+			void * alive;
+			pthread_join(threads[i], &alive);
+			ret += (int)(alive);
+		}
 	}
 	std::swap(data, tmp_data);
+	
+	stepCount++;
+	clock_gettime(CLOCK_REALTIME, &tp);
+	timePerStep = tp.tv_nsec-ts;
+	return ret;
 }
 
 uint32_t * Simulation::getData()
@@ -56,7 +105,7 @@ uint32_t * Simulation::getData()
 	return data;
 }
 
-void Simulation::setCell(uint16_t x, uint16_t y)
+int Simulation::setCell(uint16_t x, uint16_t y)
 {
 	int alive = 0;
 	int lx = x-1, by = y+1, rx = x+1, ty = y-1;
@@ -86,6 +135,9 @@ void Simulation::setCell(uint16_t x, uint16_t y)
 	if (!(data[x+(y*w)] & ALIVE_CELL) && born[alive])
 		tmp_data[x+(y*w)] = ALIVE_CELL | CELL_STEPS;
 	
+	if (data[x+(y*w)] & ALIVE_CELL)
+		return 1;
+	return 0;
 }
 
 int Simulation::countAliveCells(int x, int y, int lx, int rx, int ty, int by)
@@ -110,4 +162,15 @@ int Simulation::countAliveCells(int x, int y, int lx, int rx, int ty, int by)
 		alive++;
 
 	return alive;
+}
+
+void * simStepLineThreadFunc(void * args) {
+	struct ThreadArg * arg = (struct ThreadArg*)args;
+	Simulation * sim = arg->sim;
+	int startline = arg->startline;
+	int endline = arg->endline;
+	int alive = 0;
+	alive = sim->stepLines(startline, endline);
+	
+	return (void*)alive;
 }

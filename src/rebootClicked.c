@@ -13,6 +13,7 @@
 #include "abimport.h"
 #include "proto.h"
 
+#include "world.h"
 
 int
 rebootClicked( PtWidget_t *widget, ApInfo_t *apinfo, PtCallbackInfo_t *cbinfo )
@@ -22,6 +23,10 @@ rebootClicked( PtWidget_t *widget, ApInfo_t *apinfo, PtCallbackInfo_t *cbinfo )
 	/* eliminate 'unreferenced' warnings */
 	widget = widget, apinfo = apinfo, cbinfo = cbinfo;
 
+	disposeSimulation();
+	PtDamageWidget(ABW_prDrawer);
+	PtSetResource(ABW_plPopStep, Pt_ARG_TEXT_STRING, "Step: 0 || Population: 0", 0);
+	
 	return( Pt_CONTINUE );
 
 	}

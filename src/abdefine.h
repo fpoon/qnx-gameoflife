@@ -25,6 +25,14 @@ extern const int ABN_pbZoomIn;
 #define ABW_pbZoomIn                         AbGetABW( ABN_pbZoomIn )
 extern const int ABN_pbZoomOut;
 #define ABW_pbZoomOut                        AbGetABW( ABN_pbZoomOut )
+extern const int ABN_psFillSlider;
+#define ABW_psFillSlider                     AbGetABW( ABN_psFillSlider )
+extern const int ABN_pbFill;
+#define ABW_pbFill                           AbGetABW( ABN_pbFill )
+extern const int ABN_plFillLabel;
+#define ABW_plFillLabel                      AbGetABW( ABN_plFillLabel )
+extern const int ABN_pcbColors;
+#define ABW_pcbColors                        AbGetABW( ABN_pcbColors )
 extern const int ABN_pbNew;
 #define ABW_pbNew                            AbGetABW( ABN_pbNew )
 extern const int ABN_pbOpen;
@@ -35,12 +43,16 @@ extern const int ABN_pbCyclic;
 #define ABW_pbCyclic                         AbGetABW( ABN_pbCyclic )
 extern const int ABN_pbMulti;
 #define ABW_pbMulti                          AbGetABW( ABN_pbMulti )
+extern const int ABN_pbTurbo;
+#define ABW_pbTurbo                          AbGetABW( ABN_pbTurbo )
 extern const int ABN_ptRules;
 #define ABW_ptRules                          AbGetABW( ABN_ptRules )
 extern const int ABN_ptWidth;
 #define ABW_ptWidth                          AbGetABW( ABN_ptWidth )
 extern const int ABN_ptHeight;
 #define ABW_ptHeight                         AbGetABW( ABN_ptHeight )
+extern const int ABN_pbResize;
+#define ABW_pbResize                         AbGetABW( ABN_pbResize )
 extern const int ABN_plPopStep;
 #define ABW_plPopStep                        AbGetABW( ABN_plPopStep )
 extern const int ABN_plMinMax;

@@ -1,7 +1,10 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <pthread.h>
-
+#include <string>
+#include <sstream>
+#include <vector>
+#include <limits.h>
 
 #include "world.h"
 #include "sim.h"
@@ -16,13 +19,20 @@ extern "C" {
 	
 	int x = 0;
 	int y = 0;
-	int cellSize = 4;
+	int cellSize = 8;
 	int mode = WORLD_MODE_MOVE;
 	int timer = 10000;
+	int width = 100;
+	int height = 100;
+	unsigned long min = ULONG_MAX;
+	unsigned long avg = 0;
+	unsigned long max = 0;
 	
 	Simulation * sim = NULL;
 	
-	uint32_t data[] = {
+	void updateScreen();
+	
+	/*uint32_t data[] = {
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, ALIVE_CELL, 0, 0, 0, 0, 0, 0,
@@ -33,7 +43,13 @@ extern "C" {
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-	};
+	};*/
+	
+	std::vector<uint32_t> vdata(width*height, DEAD_CELL);
+	
+	//setWorld(100,100);
+	
+	bool inited = false;
 	
 	void setMode(int m) {
 		mode = m;
@@ -51,11 +67,23 @@ extern "C" {
 	}
 	
 	int getWorldW() {
-		return 10;
+		return width;
 	}
 	
 	int getWorldH() {
-		return 10;
+		return height;
+	}
+	
+	void setWorld(int w, int h) {
+		if (sim)
+			return;
+
+		vdata.clear();
+		for (int i = 0; i < w*h; i++) {
+			vdata.push_back(DEAD_CELL);
+		}
+		width = w;
+		height = h;
 	}
 	
 	int getCellSize() {
@@ -79,7 +107,21 @@ extern "C" {
 	}
 	
 	int isCyclic() {
-		return 1;
+		if (sim) {
+			return sim->cyclic?1:0;
+		}
+		unsigned long * flags;
+		
+		PtGetResource(ABW_pbCyclic, Pt_ARG_FLAGS, &flags, 0);
+		
+		return (*flags & Pt_SET) ? (1) : (0);
+	}
+	
+	int isLinear() {
+		unsigned long * flags;
+		PtGetResource(ABW_pbMulti, Pt_ARG_FLAGS, &flags, 0);
+		
+		return (*flags & Pt_SET) ? (0) : (1);
 	}
 	
 	uint32_t getCell(int x, int y) {
@@ -129,7 +171,7 @@ extern "C" {
 	
 	uint32_t * getWorldData() {
 		if (!sim)
-			return data;
+			return &vdata[0];
 		return sim->getData();
 	}
 	
@@ -160,19 +202,28 @@ extern "C" {
 			getWorldData(),
 			getWorldW(),
 			getWorldH(),
-			isCyclic());
+			isCyclic(),
+			isLinear()
+		);
 	}
 	
 	void step() {
 		if (!sim)
 			return;
 		sim->step();
+		updateScreen();
 	}
 	
 	void disposeSimulation() {
+		stopSimulation();
 		if (sim != NULL)
 			delete sim;
 		sim = NULL;
+		
+		min = ULONG_MAX;
+		avg = 0;
+		max = 0;
+		
 		printf("Simulation disposed\n");
 	}
 	
@@ -181,17 +232,46 @@ extern "C" {
 	}
 	
 	int simFlag = 1;
+	std::string popstr;
+	std::string minmaxstr;
+	int aliveCells;
+	
+	
 	
 	void updateScreen() {
-		PtEnter(0);
+		//PtEnter(0);
 		PtDamageWidget(ABW_prDrawer);
-		PtLeave(0);
+		std::stringstream ss;
+		ss << "Step: " << sim->stepCount << " || Population: " << aliveCells;
+		popstr = ss.str();
+		
+		PtSetResource(ABW_plPopStep, Pt_ARG_TEXT_STRING, popstr.c_str(), 0);
+		
+		ss.str(std::string());
+		
+		unsigned long cur = sim->timePerStep/1000L;
+		if (cur < min)
+			min = cur;
+		if (cur > max)
+			max = cur;
+		
+		avg = (avg*((unsigned long)(sim->stepCount-1))+cur)/(unsigned long)sim->stepCount;
+		
+		ss << "Min: " << min << "us / Avg: " << avg << "us / Max: " << max << "us";
+		
+		minmaxstr = ss.str();
+		
+		PtSetResource(ABW_plMinMax, Pt_ARG_TEXT_STRING, minmaxstr.c_str(), 0);
+		
+		//PtLeave(0);
 	}
 	
 	void * simThread(void * arg) {
 		while(simFlag) {
-			sim->step();
+			aliveCells = sim->step();
+			PtEnter(0);
 			updateScreen();
+			PtLeave(0);
 			usleep(timer);
 		}
 		return NULL;

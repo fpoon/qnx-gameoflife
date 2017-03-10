@@ -16,18 +16,15 @@
 #include "world.h"
 
 int
-speedLessClicked( PtWidget_t *widget, ApInfo_t *apinfo, PtCallbackInfo_t *cbinfo )
+baseClosed( PtWidget_t *widget, ApInfo_t *apinfo, PtCallbackInfo_t *cbinfo )
 
 	{
 
 	/* eliminate 'unreferenced' warnings */
 	widget = widget, apinfo = apinfo, cbinfo = cbinfo;
 	
-	if (timer < 1010000)
-		timer += 50000;
-	else
-		timer = 1010000;
-	printf("Timer set to: %d\n", timer);
+	disposeSimulation();
+	
 	return( Pt_CONTINUE );
 
 	}

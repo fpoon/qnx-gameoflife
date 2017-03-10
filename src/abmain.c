@@ -71,6 +71,7 @@ static const ApClassTab_t ClassTable[] = {
 	{ "PtContainer", &PtContainer },
 	{ "PtSlider", &PtSlider },
 	{ "PtLabel", &PtLabel },
+	{ "PtComboBox", &PtComboBox },
 	{ "PtToggleButton", &PtToggleButton },
 	{ "PtText", &PtText },
 	{ "PtPane", &PtPane },

@@ -6,6 +6,8 @@ static const ApEventLink_t AbApplLinks[] = {
 	};
 
 static const ApEventLink_t AbLinks_base[] = {
+	{ 8, 0, 0L, 0L, 0L, NULL, NULL, "base", 18023, baseOpened, 0, 0, 0, 0, },
+	{ 8, 0, 0L, 0L, 0L, NULL, NULL, "base", 18024, baseClosed, 0, 0, 0, 0, },
 	{ 8, 0, 0L, 0L, 0L, NULL, NULL, "prDrawer", 2009, mouseUp, 0, 0, 0, 0, },
 	{ 8, 3, 0L, 0L, 0L, NULL, NULL, "prDrawer", 24000, (int(*)(PtWidget_t*,ApInfo_t*,PtCallbackInfo_t*)) drawWorld, 0, 0, 0, 0, },
 	{ 8, 0, 0L, 0L, 0L, NULL, NULL, "prDrawer", 2012, mouseDown, 0, 0, 0, 0, },
@@ -20,9 +22,15 @@ static const ApEventLink_t AbLinks_base[] = {
 	{ 8, 0, 0L, 0L, 0L, NULL, NULL, "pbMove", 2009, moveClicked, 0, 0, 0, 0, },
 	{ 8, 0, 0L, 0L, 0L, NULL, NULL, "pbZoomIn", 2009, zoomInClicked, 0, 0, 0, 0, },
 	{ 8, 0, 0L, 0L, 0L, NULL, NULL, "pbZoomOut", 2009, zoomOutClicked, 0, 0, 0, 0, },
+	{ 8, 0, 0L, 0L, 0L, NULL, NULL, "psFillSlider", 22017, fillSliderMoved, 0, 0, 0, 0, },
+	{ 8, 0, 0L, 0L, 0L, NULL, NULL, "pbFill", 2009, fillClicked, 0, 0, 0, 0, },
+	{ 8, 0, 0L, 0L, 0L, NULL, NULL, "pcbColors", 23010, colorsSelected, 0, 0, 0, 0, },
 	{ 8, 0, 0L, 0L, 0L, NULL, NULL, "pbNew", 2009, newClicked, 0, 0, 0, 0, },
 	{ 8, 0, 0L, 0L, 0L, NULL, NULL, "pbOpen", 2009, openClicked, 0, 0, 0, 0, },
 	{ 8, 0, 0L, 0L, 0L, NULL, NULL, "pbSave", 2009, saveClicked, 0, 0, 0, 0, },
+	{ 8, 0, 0L, 0L, 0L, NULL, NULL, "pbCyclic", 2009, cyclicClicked, 0, 0, 0, 0, },
+	{ 8, 0, 0L, 0L, 0L, NULL, NULL, "pbTurbo", 2009, turboClicked, 0, 0, 0, 0, },
+	{ 8, 0, 0L, 0L, 0L, NULL, NULL, "pbResize", 2009, resizeClicked, 0, 0, 0, 0, },
 	{ 0 }
 	};
 

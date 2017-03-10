@@ -16,6 +16,7 @@ int getWorldW();
 int getWorldH();
 void setMovement(int px, int py);
 void moveWorld(int mx, int my);
+void setWorld(int w, int h);
 uint32_t getCell(int x, int y);
 uint32_t * getWorldData();
 int getCellSize();
@@ -31,6 +32,7 @@ int isSimulation();
 void disposeSimulation();
 void step();
 
+
 void setMode(int mode);
 int getMode();
 
@@ -38,5 +40,7 @@ int getMode();
 #ifdef __cplusplus
 }
 #endif
+
+extern int timer;
 
 #endif //_WORLD_H_
