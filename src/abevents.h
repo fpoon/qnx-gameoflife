@@ -29,7 +29,6 @@ static const ApEventLink_t AbLinks_base[] = {
 	{ 8, 0, 0L, 0L, 0L, NULL, NULL, "pbOpen", 2009, openClicked, 0, 0, 0, 0, },
 	{ 8, 0, 0L, 0L, 0L, NULL, NULL, "pbSave", 2009, saveClicked, 0, 0, 0, 0, },
 	{ 8, 0, 0L, 0L, 0L, NULL, NULL, "pbCyclic", 2009, cyclicClicked, 0, 0, 0, 0, },
-	{ 8, 0, 0L, 0L, 0L, NULL, NULL, "pbTurbo", 2009, turboClicked, 0, 0, 0, 0, },
 	{ 8, 0, 0L, 0L, 0L, NULL, NULL, "pbResize", 2009, resizeClicked, 0, 0, 0, 0, },
 	{ 0 }
 	};

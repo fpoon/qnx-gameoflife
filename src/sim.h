@@ -8,7 +8,10 @@
 #define ALIVE_CELL      0x80000000
 #define OUTSIDE_CELL 0xFFFFFFFF
 
-#define CELL_STEPS 0x00000010
+#define CELL_STEPS              0x0000000F
+#define CELL_STEPS_MASK    0x0000000F
+
+#define NEWBORN_CELL ALIVE_CELL | CELL_STEPS
 
 #define SIM_THREADS 20
 
@@ -24,10 +27,8 @@ struct ThreadArg {
 
 class Simulation {
 	private:
-		bool linear;
-
-		bool born[8];
-		bool still[8];
+		bool born[9];
+		bool still[9];
 		
 		uint16_t w, h;
 
@@ -43,9 +44,11 @@ class Simulation {
 		int countAliveCells(int x, int y, int lx, int rx, int ty, int by);
 	
 	public:
+		bool linear;
 		bool cyclic;
+		bool disposable;
 		uint32_t stepCount;
-		Simulation(uint32_t * feed, uint16_t w, uint16_t h, bool cyclic, bool linear=true, uint8_t b=0x08, uint8_t s=0x0C);
+		Simulation(uint32_t * feed, uint16_t w, uint16_t h, bool cyclic, bool linear=true, char * b="\0\0\03\0\0\0\0\0", char * s="\0\023\0\0\0\0\0");
 		~Simulation();
 		int step();
 		int stepLines(int startline, int endline);

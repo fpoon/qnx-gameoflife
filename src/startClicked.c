@@ -26,6 +26,7 @@ startClicked( PtWidget_t *widget, ApInfo_t *apinfo, PtCallbackInfo_t *cbinfo )
 	
 	if (!isSimulation())
 		newSimulation();
+	stopSimulation();
 	startSimulation();
 	return( Pt_CONTINUE );
 

@@ -26,6 +26,8 @@ void drawGrid(PhRect_t * canvas)
 	int x,y,w,h;
 	int startx, starty, cellx, celly, size;
 	int color;
+	int nocolor;
+	nocolor = getCellColor(0);
 	size = getCellSize();
 	w = canvas->lr.x-canvas->ul.x;
 	h = canvas->lr.y-canvas->ul.y;
@@ -41,6 +43,7 @@ void drawGrid(PhRect_t * canvas)
 
 	y = starty;
 	PgSetStrokeColor(0x00666666);
+	
 	for (j = (getWorldY()/size)-1; y <= canvas->lr.y; y+=size)
 	{
 		x = startx;
@@ -53,7 +56,7 @@ void drawGrid(PhRect_t * canvas)
 			{
 				if (size > 4)
 					PgDrawIRect(x,y,x+size,y+size, Pg_DRAW_FILL_STROKE);
-				else if (color != 0)
+				else if (color != nocolor)
 					PgDrawIRect(x,y,x+size-1,y+size-1, Pg_DRAW_FILL);
 			}
 			i++;
@@ -80,7 +83,7 @@ void drawWorld( PtWidget_t *widget, PhTile_t *damage )
 	
 	
 	PtClipAdd(widget, &canvas);
-	PgSetFillColor(Pg_BLACK);
+	PgSetFillColor(getCellColor(0));
 	PgDrawRect(&canvas, Pg_DRAW_FILL);
 	
 	//PgDrawILine(0,0,167,167);

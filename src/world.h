@@ -31,11 +31,13 @@ void stopSimulation();
 int isSimulation();
 void disposeSimulation();
 void step();
-
+void loadCellColors(const char * path);
 
 void setMode(int mode);
 int getMode();
 
+void saveWorld(const char * path);
+void openWorld(const char * path);
 
 #ifdef __cplusplus
 }

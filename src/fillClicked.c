@@ -15,6 +15,8 @@
 
 #include "world.h"
 
+#include "sim.h"
+
 extern int fillPercent;
 
 int
@@ -44,7 +46,7 @@ fillClicked( PtWidget_t *widget, ApInfo_t *apinfo, PtCallbackInfo_t *cbinfo )
 	
 	for (i = 0; i < amount; i++) {
 		do { r = (rand()*rand())%size; }	while(getWorldData()[r]);
-		getWorldData()[r] = 0x80000000;
+		getWorldData()[r] = NEWBORN_CELL;
 	}
 	
 	PtDamageWidget(ABW_prDrawer);

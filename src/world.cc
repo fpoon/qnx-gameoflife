@@ -5,6 +5,7 @@
 #include <sstream>
 #include <vector>
 #include <limits.h>
+#include <fstream>
 
 #include "world.h"
 #include "sim.h"
@@ -30,7 +31,11 @@ extern "C" {
 	
 	Simulation * sim = NULL;
 	
+	uint32_t aliveColors[CELL_STEPS+1];
+	uint32_t deadColors[CELL_STEPS+1];
+	
 	void updateScreen();
+	void getRules(char * target, char * rules, bool born);
 	
 	/*uint32_t data[] = {
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -90,19 +95,41 @@ extern "C" {
 		return cellSize;
 	}
 	
+	void centerScreen(int lastSize, int curSize) {
+		/*PhRect_t canvas;
+		PtCalcCanvas(ABW_prDrawer, &canvas);
+		int mx = canvas.lr.x*0.25;
+		int my = canvas.lr.y*0.25;
+		if (lastSize < curSize) {
+			x += mx;
+			y +=  my;
+		}
+		else if (lastSize > curSize) {
+			x -= mx;
+			y -= my;
+		}
+		
+		printf("XY %d %d\n", x, y);*/
+	}
+	
 	void increaseCellSize() {
+		int lastSize = cellSize;
 		if (cellSize < MAX_CELL_SIZE)
 			cellSize*=2;
 		else
 			cellSize = MAX_CELL_SIZE;
+		centerScreen(lastSize, cellSize);
 		printf("Cell size increased! Size: %d\n", cellSize);
 	}
 	
+	
 	void decreaseCellSize() {
+		int lastSize = cellSize;
 		if (cellSize > 1)
 			cellSize/=2;
 		else
 			cellSize = 1;
+		centerScreen(lastSize, cellSize);
 		printf("Cell size decreased! Size: %d\n", cellSize);
 	}
 	
@@ -140,11 +167,29 @@ extern "C" {
 		return getWorldData()[y*w+(x)];
 	}
 	
+	void loadCellColors(const char * path) {
+		if (!path) {
+			for (int i = 0; i < CELL_STEPS+1; i++) {
+				aliveColors[i] = 0x00FFFFFF;
+				deadColors[i] = 0x00000000;
+			}
+			return;
+		}
+		std::string p("colors/");
+		p += path;
+		std::fstream f(p.c_str(), ios::in);
+		for (int i = 0; i < CELL_STEPS+1; i++)
+			f >> std::hex >> aliveColors[i];
+		for (int i = 0; i < CELL_STEPS+1; i++)
+			f >> std::hex >> deadColors[i];
+		f.close();
+	}
+	
 	int getCellColor(int cell) {
 		if (cell & ALIVE_CELL)
-			return 0x0000FF00;
+			return aliveColors[cell & CELL_STEPS_MASK];
 		else
-			return 0x0;
+			return deadColors[cell & CELL_STEPS_MASK];
 	}
 	
 	void setCell(int absx, int absy) {
@@ -167,6 +212,8 @@ extern "C" {
 			return;
 		getWorldData()[sy*w+(sx)] ^= ALIVE_CELL ;
 		getWorldData()[sy*w+(sx)] &= ALIVE_CELL;
+		if (getWorldData()[sy*w+(sx)] & ALIVE_CELL)
+			getWorldData()[sy*w+(sx)] |= CELL_STEPS;
 	}
 	
 	uint32_t * getWorldData() {
@@ -197,13 +244,22 @@ extern "C" {
 	}
 	
 	void newSimulation() {
+		char * rules;
+		char bornRules[9];
+		char stillRules[9];
 		disposeSimulation();
+		PtGetResource(ABW_ptRules, Pt_ARG_TEXT_STRING, &rules, 0);
+		getRules(bornRules, rules, true);
+		PtGetResource(ABW_ptRules, Pt_ARG_TEXT_STRING, &rules, 0);
+		getRules(stillRules, rules, false);
 		sim = new Simulation(
 			getWorldData(),
 			getWorldW(),
 			getWorldH(),
 			isCyclic(),
-			isLinear()
+			isLinear(),
+			bornRules,
+			stillRules
 		);
 	}
 	
@@ -214,11 +270,18 @@ extern "C" {
 		updateScreen();
 	}
 	
+	pthread_t simTh;
+	
 	void disposeSimulation() {
 		stopSimulation();
-		if (sim != NULL)
+		if (sim != NULL) {
+			if (!sim->linear) {
+				pthread_kill(simTh, 0);
+				printf("SimThread killed\n");
+			}
 			delete sim;
-		sim = NULL;
+			sim = NULL;
+		}
 		
 		min = ULONG_MAX;
 		avg = 0;
@@ -236,10 +299,40 @@ extern "C" {
 	std::string minmaxstr;
 	int aliveCells;
 	
+	void getRules(char * target, char * ruless, bool born) {
+		char * rules = ruless;
+		bool readMode = false;
+		for (int i = 0; i < 9; i++) {
+			target[i] = 0;
+		}
+		
+		
+		for(;*rules != 0; rules++) {
+			//printf("%c ", *rules);
+			if (*rules == 'b' || *rules == 'B')
+			{
+				readMode = born;
+				continue;
+			}
+			
+			if (*rules == 's' || *rules == 'S')
+			{
+				readMode = !born;
+				continue;
+			}
+			
+			if (readMode) {
+				if (*rules-48 >= 0 && *rules-48 <= 8)
+					target[*rules-48]=*rules;
+			}
+		}
+		return;
+	}
 	
 	
 	void updateScreen() {
-		//PtEnter(0);
+		if (!sim)
+			return;
 		PtDamageWidget(ABW_prDrawer);
 		std::stringstream ss;
 		ss << "Step: " << sim->stepCount << " || Population: " << aliveCells;
@@ -254,7 +347,6 @@ extern "C" {
 			min = cur;
 		if (cur > max)
 			max = cur;
-		
 		avg = (avg*((unsigned long)(sim->stepCount-1))+cur)/(unsigned long)sim->stepCount;
 		
 		ss << "Min: " << min << "us / Avg: " << avg << "us / Max: " << max << "us";
@@ -278,15 +370,53 @@ extern "C" {
 	}
 	
 	void startSimulation() {
-		if (!sim)
+		if (!sim || simFlag)
 			return;
 		simFlag = 1;
-		pthread_create(NULL, NULL, simThread, NULL); 
+		pthread_create(&simTh, NULL, simThread, NULL); 
 	}
 	
 	void stopSimulation() {
 		if (!sim)
 			return;
 		simFlag = 0;
+	}
+	
+	void saveWorld(const char * path) {
+		char * rules;
+		std::fstream f(path, ios::out);
+		PtGetResource(ABW_ptRules, Pt_ARG_TEXT_STRING, &rules, 0);
+		f << rules << std::endl;
+		f << getWorldW() << std::endl;
+		f << getWorldH() << std::endl;
+		for (int i = 0; i < getWorldH(); i++) {
+			for (int j = 0; j < getWorldW(); j++)
+				f << (getWorldData()[i*getWorldW()+j]&ALIVE_CELL?1:0) << " ";
+			f << "\n";
+		}
+		f.close();
+	}
+	
+	void openWorld(const char *path) {
+		char * rules;
+		char * wstr;
+		char * hstr;
+		int w,h;
+		int cell;
+		std::fstream f(path, ios::in);
+		PtGetResource(ABW_ptRules, Pt_ARG_TEXT_STRING, &rules, 0);
+		PtGetResource(ABW_ptWidth, Pt_ARG_TEXT_STRING, &wstr, 0);
+		PtGetResource(ABW_ptHeight, Pt_ARG_TEXT_STRING, &hstr, 0);
+		f >> rules;
+		f >> w;
+		f  >> h;
+		itoa(w,wstr,10);
+		itoa(h,hstr,10);
+		setWorld(w,h);
+		for (int i = 0; i < getWorldW()*getWorldH(); i++) {
+			f >> cell;
+			getWorldData()[i] = cell * (NEWBORN_CELL);
+		}
+		f.close();
 	}
 }

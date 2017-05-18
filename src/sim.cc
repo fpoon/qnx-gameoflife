@@ -7,12 +7,13 @@
 
 using namespace std;
 
-Simulation::Simulation(uint32_t * feed, uint16_t w, uint16_t h, bool cyclic, bool linear, uint8_t b, uint8_t s) : w(w), h(h), cyclic(cyclic), linear(linear)
+Simulation::Simulation(uint32_t * feed, uint16_t w, uint16_t h, bool cyclic, bool linear, char * b, char * s) : w(w), h(h), cyclic(cyclic), linear(linear)
 {
 	timePerStep = 0;
 	stepCount = 0;
 	data = new uint32_t[w*h];
 	tmp_data = new uint32_t[w*h];
+	disposable = true;
 
 	for (int i = 0; i < w*h; i++)
 	{
@@ -20,22 +21,21 @@ Simulation::Simulation(uint32_t * feed, uint16_t w, uint16_t h, bool cyclic, boo
 		tmp_data[i] = 0;
 	}
 
-	for (int i = 0; i < 8; i++)
+	for (int i = 0; i < 9; i++)
 	{
-		born[i] = false;
-		still[i] = false;
-		if (b & 1)
+		born[i] = 0;
+		still[i] = 0;
+		if (b[i] != 0)
 		{
-			//cout << "b" << i << endl;
+			cout << "b" << i << endl;
+			//printf("B%d\n", i);
 			born[i] = true;
 		}
-		if (s & 1)
+		if (s[i] != 0)
 		{
-			//cout << "s" << i << endl;
+			cout << "s" << i << endl;
 			still[i] = true;
 		}
-		b >>= 1;
-		s >>= 1;
 	}
 	
 	float startline = 0;
@@ -57,6 +57,11 @@ Simulation::Simulation(uint32_t * feed, uint16_t w, uint16_t h, bool cyclic, boo
 
 Simulation::~Simulation()
 {
+	disposable = true;
+	if (!linear)
+		for (int i = 0; i < SIM_THREADS; i++)
+			pthread_kill(threads[i], 0);
+
 	delete data;
 	delete tmp_data;
 }
@@ -67,7 +72,11 @@ int Simulation::stepLines(int startline, int endline)
 	for (int y = startline; y < endline; y++)
 	{
 		for(int x = 0; x < w; x++)
+		{
+			if (disposable)
+				return -1;
 			ret += setCell(x,y);
+		}
 	}
 	return ret;
 }
@@ -79,6 +88,7 @@ int Simulation::step()
 	clock_gettime(CLOCK_REALTIME, &tp);
 	ts = tp.tv_nsec;
 	int ret = 0;
+	disposable = false;
 	if (linear)
 	{
 		ret = stepLines(0, h);
@@ -92,6 +102,7 @@ int Simulation::step()
 			ret += (int)(alive);
 		}
 	}
+	disposable = true;
 	std::swap(data, tmp_data);
 	
 	stepCount++;

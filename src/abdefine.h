@@ -43,8 +43,6 @@ extern const int ABN_pbCyclic;
 #define ABW_pbCyclic                         AbGetABW( ABN_pbCyclic )
 extern const int ABN_pbMulti;
 #define ABW_pbMulti                          AbGetABW( ABN_pbMulti )
-extern const int ABN_pbTurbo;
-#define ABW_pbTurbo                          AbGetABW( ABN_pbTurbo )
 extern const int ABN_ptRules;
 #define ABW_ptRules                          AbGetABW( ABN_ptRules )
 extern const int ABN_ptWidth;

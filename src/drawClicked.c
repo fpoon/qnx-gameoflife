@@ -14,6 +14,7 @@
 #include "proto.h"
 
 #include "world.h"
+#include "sim.h"
 
 int
 drawClicked( PtWidget_t *widget, ApInfo_t *apinfo, PtCallbackInfo_t *cbinfo )

@@ -22,11 +22,10 @@ const int ABN_pbOpen = 17;
 const int ABN_pbSave = 18;
 const int ABN_pbCyclic = 19;
 const int ABN_pbMulti = 20;
-const int ABN_pbTurbo = 21;
-const int ABN_ptRules = 22;
-const int ABN_ptWidth = 23;
-const int ABN_ptHeight = 24;
-const int ABN_pbResize = 25;
-const int ABN_plPopStep = 26;
-const int ABN_plMinMax = 27;
+const int ABN_ptRules = 21;
+const int ABN_ptWidth = 22;
+const int ABN_ptHeight = 23;
+const int ABN_pbResize = 24;
+const int ABN_plPopStep = 25;
+const int ABN_plMinMax = 26;
 
